@@ -23,7 +23,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const blogCollection = client.db("nextBlogDB").collection("Blog");
 
@@ -42,6 +42,74 @@ async function run() {
         const result = await cursor.toArray()
         res.send(result)
     })
+//  update
+    app.get("/addBlog/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const blog = await blogCollection.findOne(query);
+      res.send(blog);
+    });
+    app.put("/addBlog/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedBlog = req.body;
+    
+      // Construct the update object using $set
+      const updateDoc = {
+        $set: {
+          name: updatedBlog.name,
+          title: updatedBlog.title,
+          description: updatedBlog.description,
+        },
+      };
+    
+      try {
+        // Perform the update operation without upsert if not necessary
+        const result = await blogCollection.updateOne(filter, updateDoc);
+    
+        // Check if the update was successful
+        if (result.modifiedCount > 0) {
+          res.send({ success: true, message: "Blog updated successfully." });
+        } else {
+          res.send({ success: false, message: "Blog update failed or no changes were made." });
+        }
+      } catch (error) {
+        console.error("Error updating blog:", error);
+        res.status(500).send({ error: "An error occurred while updating the blog." });
+      }
+    });
+    
+    app.patch("/addBlog/.id", async (req, res) => {
+      const id = req.params.id;
+      const updatedBlog = req.body;
+      
+      try {
+        // Ensure that the provided id is a valid ObjectId
+        const filter = { _id: new ObjectId(id) };
+        const updateDoc = {
+          $set: updatedBlog, // Update with new blog details
+        };
+    
+        const result = await blogCollection.updateOne(filter, updateDoc);
+    
+        if (result.modifiedCount > 0) {
+          res.send({ success: true, message: "Blog updated successfully." });
+        } else {
+          res.send({ success: false, message: "Blog update failed or no changes made." });
+        }
+      } catch (error) {
+        res.status(500).send({ error: "An error occurred while updating the blog." });
+      }
+    });
+    
+     // delete 
+     app.delete('/addBlog/:id', async(req,res) =>{
+      const id = req.params.id;
+      const query = {_id:new ObjectId(id)}
+      const result =await blogCollection.deleteOne(query)
+      res.send(result)
+    })
+
 
 
 

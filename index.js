@@ -79,29 +79,6 @@ async function run() {
       }
     });
     
-    app.patch("/addBlog/.id", async (req, res) => {
-      const id = req.params.id;
-      const updatedBlog = req.body;
-      
-      try {
-        // Ensure that the provided id is a valid ObjectId
-        const filter = { _id: new ObjectId(id) };
-        const updateDoc = {
-          $set: updatedBlog, // Update with new blog details
-        };
-    
-        const result = await blogCollection.updateOne(filter, updateDoc);
-    
-        if (result.modifiedCount > 0) {
-          res.send({ success: true, message: "Blog updated successfully." });
-        } else {
-          res.send({ success: false, message: "Blog update failed or no changes made." });
-        }
-      } catch (error) {
-        res.status(500).send({ error: "An error occurred while updating the blog." });
-      }
-    });
-    
      // delete 
      app.delete('/addBlog/:id', async(req,res) =>{
       const id = req.params.id;
